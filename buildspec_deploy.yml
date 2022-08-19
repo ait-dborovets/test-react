@@ -4,10 +4,10 @@ phases:
     commands:
       - echo `env`
       - echo Downloading artifact...
-      - aws s3 cp s3://${ARTEFACTS_S3_NAME}/${CURRENT_PREFIX}/${VERSION_NAME}.zip
+      - aws s3 cp s3://${ARTEFACTS_S3_NAME}/${CURRENT_PREFIX}/${VERSION_NAME}.zip ./
       - echo Unpacking artifact...
       - mkdir tmp
-      - unzip -u ./${VERSION_NAME}.zip -d ./tmp  
+      - unzip -u ./${VERSION_NAME}.zip -d ./tmp
       - ls -ltr ./tmp
   build:
     commands:
