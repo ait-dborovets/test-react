@@ -13,10 +13,10 @@ phases:
     commands:
       - echo Deployng the files to the ${S3_NAME} bucket
       - aws s3 cp --recursive ./tmp s3://${S3_NAME}/
-      - All the files are been deployed
+      - echo All the files are been deployed
       - |
         if [[ "${CLOUDFRONT_ID}" != "" ]]; then
           echo Found AWS Cloudfront to create an invalidation to: ${CLOUDFRONT_ID}
           aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/*"
         fi
-      - The AWS Cloudfront ${CLOUDFRONT_ID} has been updated
+      - echo The AWS Cloudfront ${CLOUDFRONT_ID} has been updated
