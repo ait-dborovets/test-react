@@ -12,7 +12,7 @@ phases:
   build:
     commands:
       - echo Deployng the files to the ${S3_NAME} bucket
-      - aws s3 cp --recursive ./tmp/* s3://${S3_NAME}
+      - aws s3 cp --recursive ./tmp s3://${S3_NAME}/
       - All the files are been deployed
       - |
         if [[ "${CLOUDFRONT_ID}" != "" ]]; then
