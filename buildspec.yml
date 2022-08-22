@@ -1,6 +1,9 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - yum install jq yq
   pre_build:
     commands:
       - CURRENT_NAME=""
