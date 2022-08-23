@@ -12,7 +12,7 @@ phases:
       - DEPLOY_AFTER_BUILD="${DEPLOY_JOB_NAME}"
       - SCAN_SONAR_AFTER_BUILD="${SONAR_PROJECT_NAME}"
       - |
-        if [[ ${CODEBUILD_WEBHOOK_TRIGGER} == *"tag/"* ]]; then
+        if [[ ${CODEBUILD_WEBHOOK_TRIGGER} == *tag/* ]]; then
           CURRENT_PREFIX="${ARTEFACTS_PREFIX}"
           CURRENT_NAME=`echo "$CODEBUILD_WEBHOOK_TRIGGER" | sed -r 's#tag/##g' | sed -r 's/[_/\*]+/-/g'`
           echo Working with the tag: ${CURRENT_NAME} in sub-directory: ${CURRENT_PREFIX}
