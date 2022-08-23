@@ -8,7 +8,7 @@ phases:
       - DEPLOY_AFTER_BUILD="${DEPLOY_JOB_NAME}"
       - SCAN_SONAR_AFTER_BUILD="${SONAR_PROJECT_NAME}"
       - |
-        if [[ ${CODEBUILD_WEBHOOK_TRIGGER} == *"tag/"* ]]; then
+        if [[ ${CODEBUILD_WEBHOOK_TRIGGER} == *tag/* ]]; then
           CURRENT_PREFIX="${ARTEFACTS_PREFIX}"
           CURRENT_NAME=`echo "$CODEBUILD_WEBHOOK_TRIGGER" | sed -r 's#tag/##g' | sed -r 's/[_/\*]+/-/g'`
           echo Working with the tag: ${CURRENT_NAME} in sub-directory: ${CURRENT_PREFIX}
@@ -43,5 +43,8 @@ phases:
       - |
         if [[ "${DEPLOY_AFTER_BUILD}" != "" ]]; then
           echo Found the S3 bucket to deploy the nearly baked artefacts with: ${DEPLOY_JOB_NAME} job
+          echo The deployment matrix is the following: ${DEPLOY_MATRIX_JSON}
+          S3_NAME=`jq -r '.[] | select(.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .s3_name' <<< $DEPLOY_MATRIX_JSON`
+          CLOUDFRONT_ID=`jq -r '.[] | select(.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .cloudfront_id' <<< $DEPLOY_MATRIX_JSON`
           aws codebuild start-build --project-name ${DEPLOY_JOB_NAME} --source-version ${CODEBUILD_RESOLVED_SOURCE_VERSION} --environment-variables-override "[{\"name\":\"ARTEFACTS_S3_NAME\",\"value\":\"${ARTEFACTS_S3_NAME}\"},{\"name\":\"CURRENT_PREFIX\",\"value\":\"${CURRENT_PREFIX}\"},{\"name\":\"S3_NAME\",\"value\":\"${S3_NAME}\"},{\"name\":\"CLOUDFRONT_ID\",\"value\":\"${CLOUDFRONT_ID}\"},{\"name\":\"VERSION_NAME\",\"value\":\"${CURRENT_NAME}\"}]"
         fi
