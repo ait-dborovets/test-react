@@ -46,6 +46,7 @@ phases:
       - aws s3 cp ${CURRENT_NAME}.zip s3://${ARTEFACTS_S3_NAME}/${CURRENT_PREFIX}/${CURRENT_NAME}.zip
       - echo Checking if we have the destination s3 according to the deployment matrix
       - S3_NAME=`jq -r '.[] | select(.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .s3_name' <<< $DEPLOY_MATRIX_JSON`
+      - echo AWS s3 bucket to deploy ${S3_NAME}
       - CLOUDFRONT_ID=`jq -r '.[] | select(.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .cloudfront_id' <<< $DEPLOY_MATRIX_JSON`
       - |
         if [[ "${DEPLOY_AFTER_BUILD}" != "" && S3_NAME != "" ]]; then
