@@ -46,11 +46,12 @@ phases:
       - echo Checking if we have the destination s3 according to the deployment matrix
       - S3_NAME=`jq -r '.[] | select(.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .s3_name' <<< $DEPLOY_MATRIX_JSON`
       - CLOUDFRONT_ID=`jq -r '.[] | select(.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .cloudfront_id' <<< $DEPLOY_MATRIX_JSON`
-      - echo The deployment params are ${S3_NAME} ${CLOUDFRONT_ID} ${DEPLOY_AFTER_BUILD}
+      - CURRENT_ENV=`jq -r '. | with_entries(select(.value.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref))) | keys[0]' <<< $DEPLOY_MATRIX_JSON`
+      - echo The deployment parameters are ${S3_NAME} ${CLOUDFRONT_ID} ${DEPLOY_AFTER_BUILD}
       - |
         if [[ "${DEPLOY_AFTER_BUILD}" != "" && "${S3_NAME}" != "" ]]; then
           echo Found the S3 bucket to deploy the nearly baked artefacts with: ${DEPLOY_JOB_NAME} job
-          aws codebuild start-build --project-name ${DEPLOY_JOB_NAME} --source-version ${CODEBUILD_RESOLVED_SOURCE_VERSION} --environment-variables-override "[{\"name\":\"ARTEFACTS_S3_NAME\",\"value\":\"${ARTEFACTS_S3_NAME}\"},{\"name\":\"CURRENT_PREFIX\",\"value\":\"${CURRENT_PREFIX}\"},{\"name\":\"S3_NAME\",\"value\":\"${S3_NAME}\"},{\"name\":\"CLOUDFRONT_ID\",\"value\":\"${CLOUDFRONT_ID}\"},{\"name\":\"VERSION_NAME\",\"value\":\"${CURRENT_NAME}\"}]"
+          aws codebuild start-build --project-name ${DEPLOY_JOB_NAME} --source-version ${CODEBUILD_RESOLVED_SOURCE_VERSION} --environment-variables-override "[{\"name\":\"ARTEFACTS_S3_NAME\",\"value\":\"${ARTEFACTS_S3_NAME}\"},{\"name\":\"CURRENT_PREFIX\",\"value\":\"${CURRENT_PREFIX}\"},{\"name\":\"S3_NAME\",\"value\":\"${S3_NAME}\"},{\"name\":\"CLOUDFRONT_ID\",\"value\":\"${CLOUDFRONT_ID}\"},{\"name\":\"VERSION_NAME\",\"value\":\"${CURRENT_NAME}\"},{\"name\":\"CURRENT_ENV\",\"value\":\"${CURRENT_ENV}\"}]"
         else
           echo The destination for the matrix deploy is not found. Please check the configuration
         fi

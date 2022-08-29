@@ -20,3 +20,13 @@ phases:
           aws cloudfront create-invalidation --distribution-id ${CLOUDFRONT_ID} --paths "/*"
         fi
       - echo The AWS Cloudfront ${CLOUDFRONT_ID} has been updated
+  post_build:
+    commands:
+      - echo Updating deployment table
+      - |
+        if [[ "${DYNAMODB_CICD_TABLE}" != "" && "${CODEBUILD_BUILD_SUCCEEDING}" == "1" ]]; then
+          echo Found the deployment table
+          aws aws dynamodb update-item --table-name ${DYNAMODB_CICD_TABLE} --key '{"Environment": {"S": "${CURRENT_ENV}_${CURRENT_APP}"}}' --update-expression "SET Version = :v, App = :a, D = :d, Env = :e" --expression-attribute-values '{":v": { "S": "${VERSION_NAME}.zip" },":a": { "S": "${CURRENT_APP}" }, ":d": { "S": "$(date '+%H:%M %Y.%m.%d')" }, ":e": { "S": "${CURRENT_ENV}" }}'
+        else
+          echo The deployment table or current build result is not succeed.
+        fi
