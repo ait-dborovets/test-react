@@ -26,7 +26,8 @@ phases:
       - |
         if [[ "${DYNAMODB_CICD_TABLE}" != "" && "${CODEBUILD_BUILD_SUCCEEDING}" == "1" ]]; then
           echo Found the deployment table
-          aws dynamodb update-item --table-name ${DYNAMODB_CICD_TABLE} --key '{"Environment": {"S": "${CURRENT_ENV}_${CURRENT_APP}"}}' --update-expression "SET Version = :v, App = :a, D = :d, Env = :e" --expression-attribute-values '{":v": { "S": "${VERSION_NAME}.zip" },":a": { "S": "${CURRENT_APP}" }, ":d": { "S": "$(date '+%H:%M %Y.%m.%d')" }, ":e": { "S": "${CURRENT_ENV}" }}'
+          CURRENT_DATETIME=`echo $(date '+%H:%M %Y.%m.%d')`
+          aws dynamodb update-item --table-name ${DYNAMODB_CICD_TABLE} --key '{"Environment": {"S": "${CURRENT_ENV}_${CURRENT_APP}"}}' --update-expression "SET Version = :v, App = :a, D = :d, Env = :e" --expression-attribute-values '{":v": { "S": "${VERSION_NAME}.zip" },":a": { "S": "${CURRENT_APP}" }, ":d": { "S": "${CURRENT_DATETIME}" }, ":e": { "S": "${CURRENT_ENV}" }}'
         else
           echo The deployment table or current build result is not succeed.
         fi
