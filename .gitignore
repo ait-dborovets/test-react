@@ -7,7 +7,7 @@
 node_modules/
 dist/
 
-# Compiled Java class files
+# Compiled Java class files ####
 *.class
 
 # Compiled Python bytecode
@@ -47,4 +47,5 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+
 
