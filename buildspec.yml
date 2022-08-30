@@ -44,9 +44,9 @@ phases:
       - echo Pushing the artefacts to the bucket ...
       - aws s3 cp ${CURRENT_NAME}.zip s3://${ARTEFACTS_S3_NAME}/${CURRENT_PREFIX}/${CURRENT_NAME}.zip
       - echo Checking if we have the destination s3 according to the deployment matrix
-      - S3_NAME=`jq -r '.[] | select(.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .s3_name' <<< $DEPLOY_MATRIX_JSON`
-      - CLOUDFRONT_ID=`jq -r '.[] | select(.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .cloudfront_id' <<< $DEPLOY_MATRIX_JSON`
-      - CURRENT_ENV=`jq -r '. | with_entries(select(.value.source_head_ref as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref))) | keys[0]' <<< $DEPLOY_MATRIX_JSON`
+      - S3_NAME=`jq -r '.[] | select(.SOURCE_HEAD_REF as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .S3_NAME' <<< $DEPLOY_MATRIX_JSON`
+      - CLOUDFRONT_ID=`jq -r '.[] | select(.SOURCE_HEAD_REF as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref)) | .CLOUDFRONT_ID' <<< $DEPLOY_MATRIX_JSON`
+      - CURRENT_ENV=`jq -r '. | with_entries(select(.value.SOURCE_HEAD_REF as $ref | env.CODEBUILD_WEBHOOK_HEAD_REF | startswith($ref))) | keys[0]' <<< $DEPLOY_MATRIX_JSON`
       - echo The deployment parameters are ${S3_NAME} ${CLOUDFRONT_ID} ${DEPLOY_AFTER_BUILD}
       - |
         if [[ "${DEPLOY_AFTER_BUILD}" != "" && "${S3_NAME}" != "" ]]; then
