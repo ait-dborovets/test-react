@@ -16,6 +16,7 @@ jobs:
       with:
         username: $CONTAINER_REGISTRY_USERNAME
         password: $CONTAINER_REGISTRY_PASSWORD
+        registry: https://index.docker.io/v1/
     - name: Get current date # get the date of the build
       id: date
       run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
