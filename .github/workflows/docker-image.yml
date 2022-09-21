@@ -17,6 +17,7 @@ jobs:
         username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
         password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
     - name: Build the Docker image # push The image to the docker hub
+      uses: actions/checkout@v3
       run: docker build . --file Dockerfile --tag bora23/test-dborovets:$(date +%s)
     - name: Docker Push
       run: docker push bora23/test-dborovets:$(date +%s)
