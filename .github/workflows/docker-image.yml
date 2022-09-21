@@ -8,11 +8,17 @@ on:
 
 jobs:
 
-  build:
-
-    runs-on: ubuntu-latest
-
+  build_push:  # job name
+    runs-on: ubuntu-latest  # runner name : (ubuntu latest version) 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
+    - uses: actions/checkout@v2 # first action : checkout source code
+    - name: docker login
+      run: | # log into docker hub account
+        docker login -u $CONTAINER_REGISTRY_USERNAME -p $CONTAINER_REGISTRY_PASSWORD
+    - name: Get current date # get the date of the build
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d--%M-%S')"
+    - name: Build the Docker image # push The image to the docker hub
       run: docker build . --file Dockerfile --tag bora23/test-dborovets:$(date +%s)
+    - name: Docker Push
+      run: docker push bora23/test-dborovets:$(date +%s)
