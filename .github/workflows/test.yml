@@ -1,0 +1,12 @@
+name: My deploy workflow
+
+on:
+  workflow_run:
+    workflows: Docker Image CI
+    branches: master
+    types: completed
+
+jobs:
+  deploy:
+    - name: Test
+      run: echo "asdasd"
