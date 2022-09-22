@@ -18,6 +18,6 @@ jobs:
         password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
     - uses: actions/checkout@v3
     - name: Build the Docker image # push The image to the docker hub
-      run: docker build . --file Dockerfile --tag bora23/test-dborovets:$GITHUB_REF_NAME_$GITHUB_SHA
+      run: docker build . --file Dockerfile --tag bora23/test-dborovets:$GITHUB_REF_NAME-$GITHUB_SHA
     - name: Docker Push
-      run: docker push bora23/test-dborovets:$GITHUB_REF_NAME_$GITHUB_SHA
+      run: docker push bora23/test-dborovets:$GITHUB_REF_NAME-$GITHUB_SHA
