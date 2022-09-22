@@ -1,4 +1,4 @@
-name: My deploy workflow
+name: Deploy
 
 on:
   workflow_run:
@@ -11,5 +11,20 @@ jobs:
   test:  # job name
     runs-on: ubuntu-latest  # runner name : (ubuntu latest version) 
     steps:
+    - name: Install wget and yq
+      run: apt install wget && wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && chmod a+x /usr/local/bin/yq
+    - name: Setup SSH key  
+      env:
+        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_PRIVATE_KEY" > ../private.key
+        sudo chmod 600 ../private.key
+      shell: bash
     - name: Test
-      run: echo 123
+      run: |
+       git clone -b master git@github.com:ait-dborovets/argo-test.git
+       
+ 
+      
+      
