@@ -21,9 +21,16 @@ jobs:
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
         sudo chmod 600 ~/.ssh/id_rsa
       shell: bash
-    - name: Test
+    - name: Change version and deploy
       run: |
+       git config --global user.name test
+       git config --global user.email test@ait.com
        git clone -b master git@github.com:ait-dborovets/argo-test.git
+       cd react
+       yq -i -y '.image.tag = 456' dev-values.yaml
+       cat dev-values.yaml
+       git commit -am "update image tag" && git push origin master
+       
        
  
       
