@@ -27,7 +27,7 @@ jobs:
        git config --global user.email test@ait.com
        git clone -b master git@github.com:ait-dborovets/argo-test.git
        cd argo-test/react
-       yq -i -y '.image.tag = 456' dev-values.yaml
+       yq e -i '.image.tag = 456' dev-values.yaml
        cat dev-values.yaml
        git commit -am "update image tag" && git push origin master
        
