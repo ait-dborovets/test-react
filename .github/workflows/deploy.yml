@@ -26,6 +26,7 @@ jobs:
        git config --global user.name test
        git config --global user.email test@ait.com
        git clone -b master git@github.com:ait-dborovets/argo-test.git
+       ls
        cd react
        yq -i -y '.image.tag = 456' dev-values.yaml
        cat dev-values.yaml
