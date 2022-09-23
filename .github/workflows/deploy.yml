@@ -36,7 +36,9 @@ jobs:
        git clone -b master git@github.com:ait-dborovets/argo-test.git
        cd argo-test/react
        yq e -i '.image.tag = "'$GITHUB_REF_NAME-$GITHUB_SHA'"' $Values_Name
-       cat dev-values.yaml
+       #cat dev-values.yaml
+       echo $Values_Name
+       echo ${{ env.Values_Name }}
        git commit -am "update image tag" && git push origin master
        
        
