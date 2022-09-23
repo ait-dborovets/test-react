@@ -11,6 +11,14 @@ jobs:
   test:  # job name
     runs-on: ubuntu-latest  # runner name : (ubuntu latest version) 
     steps:
+    - name: Set env vars (dev)
+      if: endsWith(github.ref, '/dev')
+      run: |
+        echo "Values_Name=dev-values.yaml" >> $GITHUB_ENV
+    - name: Set env vars (prod)
+      if: endsWith(github.ref, '/master')
+      run: |
+        echo "Values_Name=prod-values.yaml" >> $GITHUB_ENV
     - name: Install wget and yq
       run: wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && chmod a+x /usr/local/bin/yq
     - name: Setup SSH key  
@@ -27,7 +35,7 @@ jobs:
        git config --global user.email test@ait.com
        git clone -b master git@github.com:ait-dborovets/argo-test.git
        cd argo-test/react
-       yq e -i '.image.tag = "'$GITHUB_REF_NAME-$GITHUB_SHA'"' dev-values.yaml
+       yq e -i '.image.tag = "'$GITHUB_REF_NAME-$GITHUB_SHA'"' env.Values_Name
        cat dev-values.yaml
        git commit -am "update image tag" && git push origin master
        
