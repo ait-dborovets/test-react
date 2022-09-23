@@ -3,7 +3,9 @@ name: Deploy
 on:
   workflow_run:
     workflows: Build Push
-    branches: master
+    branches:
+      - dev
+      - master
     types: completed
 
 jobs:
