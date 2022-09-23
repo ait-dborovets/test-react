@@ -1,0 +1,28 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: Build Push
+    branches:
+      - dev
+      - master
+    types: completed
+
+jobs:
+
+  test:  # job name
+    runs-on: ubuntu-latest  # runner name : (ubuntu latest version) 
+    steps:
+    - name: Set env vars (dev)
+      if: endsWith(github.ref, '/dev')
+      run: |
+        echo "Values_Name=dev-values.yaml" >> $GITHUB_ENV
+    - name: Set env vars (prod)
+      if: endsWith(github.ref, '/master')
+      run: |
+        echo "Values_Name=prod-values.yaml" >> $GITHUB_ENV
+    - name: Install kubectl
+      run: |
+       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && mv kubect /usr/local/bin/
+       chmod a+x /usr/local/bin/kubectl
+       kubectl -v
