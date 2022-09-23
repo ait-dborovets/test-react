@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Helm
 
 on:
   workflow_run:
@@ -23,6 +23,6 @@ jobs:
         echo "Values_Name=prod-values.yaml" >> $GITHUB_ENV
     - name: Install kubectl
       run: |
-       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && mv kubect /usr/local/bin/
+       curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && mv kubectl /usr/local/bin/
        chmod a+x /usr/local/bin/kubectl
        kubectl -v
