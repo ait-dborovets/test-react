@@ -16,11 +16,11 @@ jobs:
     - name: Set env vars (dev)
       if: endsWith(github.ref, '/dev')
       run: |
-        echo "Values_Name=dev-values.yaml" >> $GITHUB_ENV
+        echo "ENV=dev" >> $GITHUB_ENV
     - name: Set env vars (prod)
       if: endsWith(github.ref, '/master')
       run: |
-        echo "Values_Name=prod-values.yaml" >> $GITHUB_ENV
+        echo "ENV=prod" >> $GITHUB_ENV
     - name: Install wget and yq
       run: wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && chmod a+x /usr/local/bin/yq
     - name: Setup SSH key  
@@ -42,7 +42,7 @@ jobs:
        git config --global user.email $GIT_EMAIL
        git clone -b master $ARGO_REPO
        cd $ARGO_APP_FOLDER
-       yq e -i '.image.tag = "'$GITHUB_REF_NAME-$GITHUB_SHA'"' $Values_Name
+       yq e -i '.image.tag = "'$GITHUB_REF_NAME-$GITHUB_SHA'"' $ENV-values.yaml
        git commit -am "update image tag" && git push origin master
        
        
