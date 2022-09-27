@@ -21,10 +21,13 @@ jobs:
       if: endsWith(github.ref, '/master')
       run: |
         echo "Values_Name=prod-values.yaml" >> $GITHUB_ENV
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
     - name: Install kubectl
       run: |
-       #curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && mv kubectl /usr/local/bin/
-       #chmod a+x /usr/local/bin/kubectl
-       kubectl --help
-       aws --help
-       helm --help
+       aws ecr get-login-password --region eu-central-1 | helm registry login --username AWS --password-stdin 935818769908.dkr.ecr.eu-central-1.amazonaws.com
+       helm upgrade -i -n dev new-dev-react oci://935818769908.dkr.ecr.eu-central-1.amazonaws.com/react --version 0.1.0 --set=image.tag="test1"
