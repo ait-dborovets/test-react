@@ -30,4 +30,5 @@ jobs:
     - name: Install kubectl
       run: |
        aws ecr get-login-password --region eu-central-1 | helm registry login --username AWS --password-stdin 935818769908.dkr.ecr.eu-central-1.amazonaws.com
+       aws eks update-kubeconfig --region eu-central-1 --name dborovets-playground1-STAGE-EKS
        helm upgrade -i -n dev new-dev-react oci://935818769908.dkr.ecr.eu-central-1.amazonaws.com/react --version 0.1.0 --set=image.tag="test1"
