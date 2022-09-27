@@ -2,12 +2,15 @@ name: Build Push
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - dev
+      - master
   pull_request:
-    branches: [ "master" ]
-
+    branches:
+      - dev
+      - master
+      
 jobs:
-
   build_push:  # job name
     runs-on: ubuntu-latest  # runner name : (ubuntu latest version) 
     steps:
