@@ -32,13 +32,17 @@ jobs:
         sudo chmod 600 ~/.ssh/id_rsa
       shell: bash
     - name: Change version and deploy
+      env:
+        GIT_USER: test
+        GIT_EMAIL: test@ait.com
+        ARGO_REPO: git@github.com:ait-dborovets/argo-test.git
+        ARGO_APP_FOLDER: argo-test/react
       run: |
-       git config --global user.name test
-       git config --global user.email test@ait.com
-       git clone -b master git@github.com:ait-dborovets/argo-test.git
-       cd argo-test/react
+       git config --global user.name $GIT_USER
+       git config --global user.email $GIT_EMAIL
+       git clone -b master $ARGO_REPO
+       cd $ARGO_APP_FOLDER
        yq e -i '.image.tag = "'$GITHUB_REF_NAME-$GITHUB_SHA'"' $Values_Name
-       cat dev-values.yaml
        git commit -am "update image tag" && git push origin master
        
        

@@ -12,6 +12,9 @@ jobs:
 
   test:  # job name
     runs-on: ubuntu-latest  # runner name : (ubuntu latest version) 
+    env:
+      AWS_REGION: eu-central-1
+      aws-account: 935818769908
     steps:
     - name: Set env vars (dev)
       if: endsWith(github.ref, '/dev')
@@ -26,9 +29,12 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-central-1
-    - name: Install kubectl
+        aws-region: $AWS_REGION
+    - name: Update App Tag
+      env:
+        cluster-name: test
+        git-email: test@ait.com
       run: |
-       aws ecr get-login-password --region eu-central-1 | helm registry login --username AWS --password-stdin 935818769908.dkr.ecr.eu-central-1.amazonaws.com
-       aws eks update-kubeconfig --region eu-central-1 --name dborovets-playground1-STAGE-EKS
-       helm upgrade -i -n dev new-dev-react oci://935818769908.dkr.ecr.eu-central-1.amazonaws.com/react --version 0.1.0 --set=image.tag="test1"
+       aws ecr get-login-password --region $AWS_REGION | helm registry login --username AWS --password-stdin $aws-account.dkr.ecr.$AWS_REGION.amazonaws.com
+       aws eks update-kubeconfig --region $AWS_REGION --name dborovets-playground1-STAGE-EKS
+       helm upgrade -i -n dev new-dev-react oci://$aws-account.dkr.ecr.$AWS_REGION.amazonaws.com/react --version 0.1.0 --set=image.tag=$GITHUB_REF_NAME-$GITHUB_SHA
