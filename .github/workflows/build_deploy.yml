@@ -5,7 +5,6 @@ on:
     branches:
       - dev
       - master
-      - test1
   pull_request:
     branches:
       - dev
@@ -15,24 +14,12 @@ jobs:
 
   Build_App:
     runs-on: ubuntu-latest
+    env : 
+      CI: false
+    
     steps:
-      - name: Set env vars (dev)
-        if: endsWith(github.ref, '/dev')
-        run: |
-          echo "ENV=dev" >> $GITHUB_ENV
-      - name: Set env vars (prod)
-        if: endsWith(github.ref, '/master')
-        run: |
-          echo "ENV=prod" >> $GITHUB_ENV
-          
       - name: Git clone
         uses: actions/checkout@v1
-
-      - name: test
-        env:
-          CLUSTER_NAME: $ENV-eks-cluster-name  # change this value to relevant EKS Cluster Name
-        run: |
-          echo $CLUSTER_NAME
 
       - name: Build
         run: |
@@ -56,6 +43,15 @@ jobs:
       AWS_REGION: 'eu-central-1'  # Default AWS Region is eu-central-1
     
     steps:
+      - name: Set env vars (dev)
+        if: endsWith(github.ref, '/dev')
+        run: |
+          echo "S3_BUCKET=test-react-ait" >> $GITHUB_ENV
+      - name: Set env vars (prod)
+        if: endsWith(github.ref, '/master')
+        run: |
+          echo "S3_BUCKET=test-react-ait-prod" >> $GITHUB_ENV
+
       - name: Git clone
         uses: actions/checkout@v1
 
@@ -83,12 +79,12 @@ jobs:
 
       - name: Copy new files to S3 Bucket
         run : |
-          echo "Copying new files to ${{ env.BUCKET_NAME }} ..."
-          aws s3 sync ./build s3://${{ env.BUCKET_NAME }}/ --delete
+          echo "Copying new files to ${{ env.S3_BUCKET }} ..."
+          aws s3 sync ./build s3://${{ env.S3_BUCKET }}/ --delete
           if [ $? -eq 0 ]; then
-            echo "Files to ${{ env.BUCKET_NAME }} were copied successfully"
+            echo "Files to ${{ env.S3_BUCKET }} were copied successfully"
           else
-            echo "An error occur while copying files to ${{ env.BUCKET_NAME }}"
+            echo "An error occur while copying files to ${{ env.S3_BUCKET }}"
             exit 1
           fi
 
@@ -103,6 +99,15 @@ jobs:
       AWS_REGION: 'eu-central-1' # Default AWS Region is eu-central-1
 
     steps:
+      - name: Set env vars (dev)
+        if: endsWith(github.ref, '/dev')
+        run: |
+          echo "CF_DISTR=EAK071V1Y83IX" >> $GITHUB_ENV
+      - name: Set env vars (prod)
+        if: endsWith(github.ref, '/master')
+        run: |
+          echo "CF_DISTR=E35X06I21HGQHZ" >> $GITHUB_ENV
+
       # Configure AWS creds if Github secrets defined
       - name: Configure AWS creds with Github secrets
         uses: aws-actions/configure-aws-credentials@v1
@@ -121,10 +126,10 @@ jobs:
 
       - name: Refresh Cloudfront
         run : |
-          echo "Invalidating CloudFront ${{ env.CLOUDFRONT_ID }}..."
-          aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_ID }} --paths "/*"
+          echo "Invalidating CloudFront ${{ env.CF_DISTR }}..."
+          aws cloudfront create-invalidation --distribution-id ${{ env.CF_DISTR }} --paths "/*"
           if [ $? -eq 0 ]; then
-            echo "Cloudfront ${{ env. CLOUDFRONT_ID}} was successfully invalidated"
+            echo "Cloudfront ${{ env.CF_DISTR}} was successfully invalidated"
           else
             echo "An error occur while invalidating Cloudfront"
             exit 1
