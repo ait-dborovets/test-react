@@ -7,8 +7,13 @@ env:
 
 on:
   push:
-    branches: [ "master" ]        # master is default branch to trigger Action upon push
-  workflow_dispatch:
+    branches:
+      - dev
+      - master
+  pull_request:
+    branches:
+      - dev
+      - master
 
 jobs:
 
@@ -33,6 +38,7 @@ jobs:
           path: build/
 
   S3_Bucket_push:
+    if: "!contains(github.ref, 'pull')"
     runs-on: ubuntu-latest
     needs  : [Build_App]
     permissions:
@@ -81,6 +87,7 @@ jobs:
           fi
 
   CF_INVALIDATION:
+    if: "!contains(github.ref, 'pull')"
     runs-on: ubuntu-latest
     needs: [S3_Bucket_push]
     permissions:
