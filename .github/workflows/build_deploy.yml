@@ -1,10 +1,5 @@
 name: React_S3_Cloudfront
 
-env:
-  BUCKET_NAME  : "test-react-ait"               # Provide relevant S3 Bucket name
-  CLOUDFRONT_ID: "EAK071V1Y83IX"               # Provide CDN name
-  AUTH         : "secrets"   # AWS auth method - 'secrets' for Github secrets, 'oidc' - for OpenID Connect
-
 on:
   push:
     branches:
@@ -48,6 +43,15 @@ jobs:
       AWS_REGION: 'eu-central-1'  # Default AWS Region is eu-central-1
     
     steps:
+      - name: Set env vars (dev)
+        if: endsWith(github.ref, '/dev')
+        run: |
+          echo "S3_BUCKET=test-react-ait" >> $GITHUB_ENV
+      - name: Set env vars (prod)
+        if: endsWith(github.ref, '/master')
+        run: |
+          echo "S3_BUCKET=test-react-ait-prod" >> $GITHUB_ENV
+
       - name: Git clone
         uses: actions/checkout@v1
 
@@ -59,7 +63,6 @@ jobs:
 
       # Configure AWS creds if Github secrets defined
       - name: Configure AWS creds with Github secrets
-        if  : ${{ env.AUTH == 'secrets' }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id    : ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -67,22 +70,21 @@ jobs:
           aws-region           : ${{ env.AWS_REGION }}
 
       # Configures AWS creds with OpenID Connect if no secrets defined
-      - name: Configure AWS creds with OpenID Connect
-        if  : ${{ env.AUTH == 'oidc' }}
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume   : arn:aws:iam::123456789:role/my-github-actions   # First, create and configure role (e.g. my-github-actions), provide proper Account ID
-          role-session-name: githubactions
-          aws-region       : ${{ env.AWS_REGION }}
+      #- name: Configure AWS creds with OpenID Connect
+      #  uses: aws-actions/configure-aws-credentials@v1
+      #  with:
+      #    role-to-assume   : arn:aws:iam::123456789:role/my-github-actions   # First, create and configure role (e.g. my-github-actions), provide proper Account ID
+      #    role-session-name: githubactions
+      #    aws-region       : ${{ env.AWS_REGION }}
 
       - name: Copy new files to S3 Bucket
         run : |
-          echo "Copying new files to ${{ env.BUCKET_NAME }} ..."
-          aws s3 sync ./build s3://${{ env.BUCKET_NAME }}/ --delete
+          echo "Copying new files to ${{ env.S3_BUCKET }} ..."
+          aws s3 sync ./build s3://${{ env.S3_BUCKET }}/ --delete
           if [ $? -eq 0 ]; then
-            echo "Files to ${{ env.BUCKET_NAME }} were copied successfully"
+            echo "Files to ${{ env.S3_BUCKET }} were copied successfully"
           else
-            echo "An error occur while copying files to ${{ env.BUCKET_NAME }}"
+            echo "An error occur while copying files to ${{ env.S3_BUCKET }}"
             exit 1
           fi
 
@@ -97,9 +99,17 @@ jobs:
       AWS_REGION: 'eu-central-1' # Default AWS Region is eu-central-1
 
     steps:
+      - name: Set env vars (dev)
+        if: endsWith(github.ref, '/dev')
+        run: |
+          echo "CF_DISTR=EAK071V1Y83IX" >> $GITHUB_ENV
+      - name: Set env vars (prod)
+        if: endsWith(github.ref, '/master')
+        run: |
+          echo "CF_DISTR=E35X06I21HGQHZ" >> $GITHUB_ENV
+
       # Configure AWS creds if Github secrets defined
       - name: Configure AWS creds with Github secrets
-        if  : ${{ env.AUTH == 'secrets' }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id    : ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -107,20 +117,19 @@ jobs:
           aws-region           : ${{ env.AWS_REGION }}
 
       # Configures AWS creds with OpenID Connect if no secrets defined
-      - name: Configure AWS creds with OpenID Connect
-        if  : ${{ env.AUTH == 'oidc' }}
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume   : arn:aws:iam::123456789:role/my-github-actions   # First, create and configure role (e.g. my-github-actions), provide proper Account ID
-          role-session-name: githubactions
-          aws-region       : ${{ env.AWS_REGION }}
+      #- name: Configure AWS creds with OpenID Connect
+      #  uses: aws-actions/configure-aws-credentials@v1
+      #  with:
+      #    role-to-assume   : arn:aws:iam::123456789:role/my-github-actions   # First, create and configure role (e.g. my-github-actions), provide proper Account ID
+      #    role-session-name: githubactions
+      #    aws-region       : ${{ env.AWS_REGION }}
 
       - name: Refresh Cloudfront
         run : |
-          echo "Invalidating CloudFront ${{ env.CLOUDFRONT_ID }}..."
-          aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_ID }} --paths "/*"
+          echo "Invalidating CloudFront ${{ env.CF_DISTR }}..."
+          aws cloudfront create-invalidation --distribution-id ${{ env.CF_DISTR }} --paths "/*"
           if [ $? -eq 0 ]; then
-            echo "Cloudfront ${{ env. CLOUDFRONT_ID}} was successfully invalidated"
+            echo "Cloudfront ${{ env.CF_DISTR}} was successfully invalidated"
           else
             echo "An error occur while invalidating Cloudfront"
             exit 1
