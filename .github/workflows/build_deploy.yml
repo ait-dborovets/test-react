@@ -14,7 +14,7 @@ on:
       - master
 
 jobs:
-  Build_App:
+  build_app:
     runs-on: ubuntu-latest
     env : 
       CI: false
@@ -34,7 +34,7 @@ jobs:
           name: react_app
           path: build/
 
-  S3_Bucket_push:
+  s3_bucket_push:
     if: "!contains(github.ref, 'pull')"
     runs-on: ubuntu-latest
     needs  : [Build_App]
@@ -43,11 +43,11 @@ jobs:
       - name: Set env vars (dev) # Set S3 bucket name for the DEV env
         if: endsWith(github.ref, '/dev')
         run: | 
-          echo "S3_BUCKET=test-react-ait" >> $GITHUB_ENV 
+          echo "S3_BUCKET=dev-bucket-name" >> $GITHUB_ENV 
       - name: Set env vars (prod) # Set S3 bucket name for the PROD env
         if: endsWith(github.ref, '/master')
         run: |
-          echo "S3_BUCKET=test-react-ait-prod" >> $GITHUB_ENV
+          echo "S3_BUCKET=prod-bucket-name" >> $GITHUB_ENV
 
       - name: Git clone
         uses: actions/checkout@v1
@@ -85,7 +85,7 @@ jobs:
             exit 1
           fi
 
-  CF_INVALIDATION:
+  cf_invalidation:
     if: "!contains(github.ref, 'pull')"
     runs-on: ubuntu-latest
     needs: [S3_Bucket_push]
@@ -94,11 +94,11 @@ jobs:
       - name: Set env vars (dev) # Set CF distribution name for the DEV env
         if: endsWith(github.ref, '/dev')
         run: |
-          echo "CF_DISTR=EAK071V1Y83IX" >> $GITHUB_ENV
+          echo "CF_DISTR=dev-cf-distr-id" >> $GITHUB_ENV
       - name: Set env vars (prod) # Set CF distribution name for the PROD env
         if: endsWith(github.ref, '/master')
         run: |
-          echo "CF_DISTR=E35X06I21HGQHZ" >> $GITHUB_ENV
+          echo "CF_DISTR=prod-cf-distr-id" >> $GITHUB_ENV
 
       # Configure AWS creds if Github secrets defined
       - name: Configure AWS creds with Github secrets
