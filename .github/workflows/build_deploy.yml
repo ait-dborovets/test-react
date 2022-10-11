@@ -1,9 +1,5 @@
 name: React_S3_Cloudfront
 
-env:
-  BUCKET_NAME  : "test-react-ait"              # Provide relevant S3 Bucket name
-  CLOUDFRONT_ID: "EAK071V1Y83IX"               # Provide CDN name
-
 on:
   push:
     branches:
@@ -13,17 +9,30 @@ on:
     branches:
       - dev
       - master
+      - test1
 
 jobs:
 
   Build_App:
     runs-on: ubuntu-latest
-    env : 
-      CI: false
-    
     steps:
+      - name: Set env vars (dev)
+        if: endsWith(github.ref, '/dev')
+        run: |
+          echo "ENV=dev" >> $GITHUB_ENV
+      - name: Set env vars (prod)
+        if: endsWith(github.ref, '/master')
+        run: |
+          echo "ENV=prod" >> $GITHUB_ENV
+          
       - name: Git clone
         uses: actions/checkout@v1
+
+      - name: test
+        env:
+          CLUSTER_NAME: $ENV-eks-cluster-name  # change this value to relevant EKS Cluster Name
+        run: |
+          echo $CLUSTER_NAME
 
       - name: Build
         run: |
