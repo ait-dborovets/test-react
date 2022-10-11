@@ -5,11 +5,11 @@ on:
     branches:
       - dev
       - master
+      - test1
   pull_request:
     branches:
       - dev
       - master
-      - test1
 
 jobs:
 
